@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
   Truck,
@@ -7,12 +6,17 @@ import {
   DollarSign,
   Clock,
   AlertCircle,
+  Package,
+  AlertTriangle,
+  FileText,
 } from "lucide-react";
+import axios from "axios";
 
 export default function AvailableShipments() {
   const [availableShipments, setAvailableShipments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedDescription, setExpandedDescription] = useState({});
 
   useEffect(() => {
     const fetchShipments = async () => {
@@ -66,8 +70,28 @@ export default function AvailableShipments() {
   };
 
   const handleAcceptShipment = async (shipmentId) => {
-    // Implementation would go here - this would call an API endpoint to accept the shipment
+    await axios.post(
+      `http://127.0.0.1:8000/agents/claim-shipment/${shipmentId}/`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access")}`,
+        },
+      }
+    );
     alert(`Accepting shipment ${shipmentId}`);
+    setAvailableShipments(
+      availableShipments.filter((shipment) => {
+        return shipment.id !== shipmentId;
+      })
+    );
+  };
+
+  const toggleDescription = (shipmentId) => {
+    setExpandedDescription((prev) => ({
+      ...prev,
+      [shipmentId]: !prev[shipmentId],
+    }));
   };
 
   if (isLoading) {
@@ -121,12 +145,13 @@ export default function AvailableShipments() {
         {availableShipments.map((shipment) => (
           <div
             key={shipment.id}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
+            className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200"
           >
-            <div className="p-5">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="font-semibold text-lg text-gray-800">
-                  Shipment #{shipment.id}
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-lg text-gray-800 flex items-center">
+                  <Package className="mr-2 text-blue-600" size={20} />
+                  {shipment.id}
                 </h3>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -136,12 +161,14 @@ export default function AvailableShipments() {
                   {shipment.status}
                 </span>
               </div>
+            </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center text-gray-700">
+            <div className="p-5">
+              <div className="space-y-4">
+                <div className="flex items-start text-gray-700">
                   <MapPin
                     size={18}
-                    className="mr-2 text-green-600 flex-shrink-0"
+                    className="mr-2 mt-1 text-green-600 flex-shrink-0"
                   />
                   <div>
                     <span className="text-sm text-gray-500">Origin:</span>
@@ -149,10 +176,10 @@ export default function AvailableShipments() {
                   </div>
                 </div>
 
-                <div className="flex items-center text-gray-700">
+                <div className="flex items-start text-gray-700">
                   <MapPin
                     size={18}
-                    className="mr-2 text-red-600 flex-shrink-0"
+                    className="mr-2 mt-1 text-red-600 flex-shrink-0"
                   />
                   <div>
                     <span className="text-sm text-gray-500">Destination:</span>
@@ -160,14 +187,27 @@ export default function AvailableShipments() {
                   </div>
                 </div>
 
-                <div className="flex items-center text-gray-700">
-                  <DollarSign
-                    size={18}
-                    className="mr-2 text-blue-600 flex-shrink-0"
-                  />
-                  <div>
-                    <span className="text-sm text-gray-500">Payment:</span>
-                    <p className="font-medium">${shipment.cost.toFixed(2)}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center text-gray-700">
+                    <DollarSign
+                      size={18}
+                      className="mr-2 text-blue-600 flex-shrink-0"
+                    />
+                    <div>
+                      <span className="text-sm text-gray-500">Payment:</span>
+                      <p className="font-medium">${shipment.cost.toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center text-gray-700">
+                    <AlertTriangle
+                      size={18}
+                      className="mr-2 text-amber-600 flex-shrink-0"
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">Weight:</span>
+                      <p className="font-medium">{shipment.weight}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -181,14 +221,33 @@ export default function AvailableShipments() {
                     <p className="text-sm">{formatDate(shipment.created_at)}</p>
                   </div>
                 </div>
+
+                <div className="border-t border-gray-100 pt-3 mt-2">
+                  <button
+                    onClick={() => toggleDescription(shipment.id)}
+                    className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    <FileText size={16} className="mr-1" />
+                    {expandedDescription[shipment.id]
+                      ? "Hide Description"
+                      : "View Description"}
+                  </button>
+
+                  {expandedDescription[shipment.id] && (
+                    <div className="mt-2 p-3 bg-gray-50 rounded-md text-sm text-gray-700 border-l-4 border-blue-400">
+                      {shipment.description}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="border-t border-gray-100 bg-gray-50 p-4">
+            <div className="border-t border-gray-200 bg-gray-50 p-4">
               <button
                 onClick={() => handleAcceptShipment(shipment.id)}
-                className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors duration-200 flex justify-center items-center"
+                className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors duration-200 flex justify-center items-center gap-2"
               >
+                <Truck size={18} />
                 Accept Shipment
               </button>
             </div>

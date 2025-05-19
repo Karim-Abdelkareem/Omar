@@ -8,6 +8,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CreateShipment from "./components/shipments/CreateShipment";
 import ShipmentList from "./components/shipments/ShipmentList";
 import AvailableShipments from "./components/availableShipments/AvailableShipments";
+import MyShipments from "./components/myShipments/MyShipments";
+import MyEarnings from "./components/myEarnings/MyEarnigns";
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +26,8 @@ function App() {
               path="/shipments/available"
               element={<AvailableShipments />}
             />
+            <Route path="/shipments/my-shipments" element={<MyShipments />} />
+            <Route path="my-earnings" element={<MyEarnings />} />
           </Routes>
         </main>
         <Footer />
