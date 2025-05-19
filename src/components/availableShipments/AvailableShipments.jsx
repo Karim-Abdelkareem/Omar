@@ -1,0 +1,200 @@
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import {
+  Truck,
+  MapPin,
+  Calendar,
+  DollarSign,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
+
+export default function AvailableShipments() {
+  const [availableShipments, setAvailableShipments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchShipments = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `http://127.0.0.1:8000/agents/available-shipments`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access")}`,
+            },
+          }
+        );
+        setAvailableShipments(response.data);
+        setIsLoading(false);
+      } catch (err) {
+        setError("Failed to fetch shipments");
+        setIsLoading(false);
+        console.error("Error fetching shipments:", err);
+      }
+    };
+    fetchShipments();
+  }, []);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-800";
+      case "ASSIGNED":
+        return "bg-blue-100 text-blue-800";
+      case "IN_TRANSIT":
+        return "bg-purple-100 text-purple-800";
+      case "DELIVERED":
+        return "bg-green-100 text-green-800";
+      case "CANCELLED":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleAcceptShipment = async (shipmentId) => {
+    // Implementation would go here - this would call an API endpoint to accept the shipment
+    alert(`Accepting shipment ${shipmentId}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 bg-red-50 rounded-lg flex items-center gap-3 text-red-700">
+        <AlertCircle size={24} />
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (availableShipments.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center">
+        <Truck
+          className="mx-auto mb-4 text-gray-400"
+          size={48}
+          strokeWidth={1.5}
+        />
+        <h3 className="text-lg font-semibold text-gray-800">
+          No Available Shipments
+        </h3>
+        <p className="text-gray-500 mt-2">
+          Check back later for new shipment opportunities.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-50 p-6 rounded-lg">
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
+          <Truck className="mr-2" size={24} />
+          Available Shipments
+        </h2>
+        <p className="text-gray-600 mt-1">
+          Select a shipment to accept and deliver
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {availableShipments.map((shipment) => (
+          <div
+            key={shipment.id}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
+          >
+            <div className="p-5">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="font-semibold text-lg text-gray-800">
+                  Shipment #{shipment.id}
+                </h3>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                    shipment.status
+                  )}`}
+                >
+                  {shipment.status}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center text-gray-700">
+                  <MapPin
+                    size={18}
+                    className="mr-2 text-green-600 flex-shrink-0"
+                  />
+                  <div>
+                    <span className="text-sm text-gray-500">Origin:</span>
+                    <p className="font-medium">{shipment.origin}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center text-gray-700">
+                  <MapPin
+                    size={18}
+                    className="mr-2 text-red-600 flex-shrink-0"
+                  />
+                  <div>
+                    <span className="text-sm text-gray-500">Destination:</span>
+                    <p className="font-medium">{shipment.destination}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center text-gray-700">
+                  <DollarSign
+                    size={18}
+                    className="mr-2 text-blue-600 flex-shrink-0"
+                  />
+                  <div>
+                    <span className="text-sm text-gray-500">Payment:</span>
+                    <p className="font-medium">${shipment.cost.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center text-gray-700">
+                  <Clock
+                    size={18}
+                    className="mr-2 text-purple-600 flex-shrink-0"
+                  />
+                  <div>
+                    <span className="text-sm text-gray-500">Created:</span>
+                    <p className="text-sm">{formatDate(shipment.created_at)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 bg-gray-50 p-4">
+              <button
+                onClick={() => handleAcceptShipment(shipment.id)}
+                className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors duration-200 flex justify-center items-center"
+              >
+                Accept Shipment
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
