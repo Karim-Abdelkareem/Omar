@@ -27,14 +27,7 @@ export default function AvailableShipments() {
     const fetchShipments = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `http://127.0.0.1:8000/agents/available-shipments`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access")}`,
-            },
-          }
-        );
+        const response = await api.get(`agents/available-shipments`);
         setAvailableShipments(response.data);
         setIsLoading(false);
       } catch (err) {
@@ -131,7 +124,7 @@ export default function AvailableShipments() {
       {/* Hero Section */}
       <div className="relative bg-[#2E605A] overflow-hidden">
         <div className="absolute inset-0 bg-black opacity-30"></div>
-        <img 
+        <img
           src="https://images.unsplash.com/photo-1556388158-158ea5ccacbd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&h=500&q=80"
           alt="Shipping Hero"
           className="w-full h-96 object-cover"
@@ -142,7 +135,8 @@ export default function AvailableShipments() {
               Deliver with Confidence
             </h1>
             <p className="text-xl text-[#c2e0dc] mb-8">
-              Find available shipments and grow your delivery business with our trusted platform.
+              Find available shipments and grow your delivery business with our
+              trusted platform.
             </p>
             <button className="bg-[#4E9989] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#3d7c6f] transition">
               Get Started
@@ -254,7 +248,9 @@ export default function AvailableShipments() {
                           className="mr-2 mt-1 text-[#2E605A] flex-shrink-0"
                         />
                         <div>
-                          <span className="text-sm text-gray-500">Destination:</span>
+                          <span className="text-sm text-gray-500">
+                            Destination:
+                          </span>
                           <p className="font-medium">{shipment.destination}</p>
                         </div>
                       </div>
@@ -266,8 +262,12 @@ export default function AvailableShipments() {
                             className="mr-2 text-[#4E9989] flex-shrink-0"
                           />
                           <div>
-                            <span className="text-sm text-gray-500">Payment:</span>
-                            <p className="font-medium">${shipment.cost.toFixed(2)}</p>
+                            <span className="text-sm text-gray-500">
+                              Payment:
+                            </span>
+                            <p className="font-medium">
+                              ${shipment.cost.toFixed(2)}
+                            </p>
                           </div>
                         </div>
 
@@ -277,7 +277,9 @@ export default function AvailableShipments() {
                             className="mr-2 text-[#2E605A] flex-shrink-0"
                           />
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500">Weight:</span>
+                            <span className="text-sm text-gray-500">
+                              Weight:
+                            </span>
                             <p className="font-medium">{shipment.weight}</p>
                           </div>
                         </div>
@@ -289,8 +291,12 @@ export default function AvailableShipments() {
                           className="mr-2 text-[#4E9989] flex-shrink-0"
                         />
                         <div>
-                          <span className="text-sm text-gray-500">Created:</span>
-                          <p className="text-sm">{formatDate(shipment.created_at)}</p>
+                          <span className="text-sm text-gray-500">
+                            Created:
+                          </span>
+                          <p className="text-sm">
+                            {formatDate(shipment.created_at)}
+                          </p>
                         </div>
                       </div>
 
@@ -334,12 +340,15 @@ export default function AvailableShipments() {
       <div className="bg-[#f0f7f6] py-16">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose Our Platform?</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Why Choose Our Platform?
+            </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              We provide the best tools and support for delivery agents to succeed.
+              We provide the best tools and support for delivery agents to
+              succeed.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <div className="flex items-center mb-4">
@@ -347,27 +356,30 @@ export default function AvailableShipments() {
                 <h3 className="text-xl font-semibold">Reliable Payments</h3>
               </div>
               <p className="text-gray-600">
-                Guaranteed payments for every completed shipment with transparent tracking.
+                Guaranteed payments for every completed shipment with
+                transparent tracking.
               </p>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <div className="flex items-center mb-4">
                 <BarChart2 size={24} className="text-[#4E9989] mr-3" />
                 <h3 className="text-xl font-semibold">Performance Insights</h3>
               </div>
               <p className="text-gray-600">
-                Detailed analytics to help you optimize your delivery routes and earnings.
+                Detailed analytics to help you optimize your delivery routes and
+                earnings.
               </p>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <div className="flex items-center mb-4">
                 <Globe size={24} className="text-[#4E9989] mr-3" />
                 <h3 className="text-xl font-semibold">Wide Coverage</h3>
               </div>
               <p className="text-gray-600">
-                Shipments available across multiple cities and regions to maximize your opportunities.
+                Shipments available across multiple cities and regions to
+                maximize your opportunities.
               </p>
             </div>
           </div>
