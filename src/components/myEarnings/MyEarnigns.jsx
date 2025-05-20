@@ -1,39 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User, DollarSign, MapPin, Mail, Tag, Award } from "lucide-react";
+import api from "../../axios/api";
 
 export default function MyEarnings() {
-  // Since we can't use axios in this environment, I'll use mock data
-  // that matches the structure you provided
-  const [earningsData] = useState({
-    earnings: 420.0,
-    agent: {
-      id: 1,
-      user: {
-        id: 1,
-        username: "Karamelaz",
-        email: "alkar33m@gmail.com",
-        role: "",
-      },
-      city: "Sohag",
-      total_earnings: 420.0,
-    },
-  });
+  const [earningsData, setEarningsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // In your actual app, you'd use this code to fetch data:
-  /*
   useEffect(() => {
     const fetchEarnings = async () => {
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/agents/earnings`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access")}`,
-            },
-          }
-        );
-        const data = await response.json();
-        setEarningsData(data);
+        const response = await api.get(`/agents/earnings`);
+        setEarningsData(response.data); // Changed from response.json() to response.data as axios already parses JSON
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch earnings data");
@@ -43,13 +21,55 @@ export default function MyEarnings() {
 
     fetchEarnings();
   }, []);
-  */
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="w-full my-6 max-w-md mx-auto bg-white p-6 rounded-2xl shadow-lg text-center">
+        <div className="animate-pulse">
+          <div className="h-32 bg-blue-100 rounded-t-xl"></div>
+          <div className="space-y-4 mt-4">
+            <div className="h-8 bg-gray-100 rounded"></div>
+            <div className="h-8 bg-gray-100 rounded"></div>
+            <div className="h-8 bg-gray-100 rounded"></div>
+          </div>
+          <div className="h-24 bg-gray-100 rounded-xl mt-6"></div>
+        </div>
+        <p className="mt-4 text-gray-600">Loading earnings data...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !earningsData || !earningsData.agent) {
+    return (
+      <div className="w-full my-6 max-w-md mx-auto bg-white p-6 rounded-2xl shadow-lg text-center border border-red-100">
+        <div className="p-4 bg-red-50 rounded-xl">
+          <p className="text-red-600">
+            {error || "Unable to load earnings data"}
+          </p>
+          <button
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              // Re-fetch data logic would go here
+            }}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const { agent } = earningsData;
   const { user, city, total_earnings } = agent;
 
-  // Get first letter of username for avatar
-  const avatarInitial = user.username.charAt(0).toUpperCase();
+  // Get first letter of username for avatar (safely)
+  const avatarInitial = user?.username
+    ? user.username.charAt(0).toUpperCase()
+    : "?";
 
   return (
     <div className="w-full my-6 max-w-md mx-auto bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-lg overflow-hidden md:max-w-2xl border border-blue-100">
@@ -60,10 +80,10 @@ export default function MyEarnings() {
             {avatarInitial}
           </div>
           <div className="ml-4">
-            <h2 className="text-2xl font-bold">{user.username}</h2>
+            <h2 className="text-2xl font-bold">{user?.username || "User"}</h2>
             <div className="flex items-center mt-1 text-blue-100">
               <Mail className="h-4 w-4 mr-1" />
-              <p className="text-sm">{user.email}</p>
+              <p className="text-sm">{user?.email || "No email provided"}</p>
             </div>
           </div>
         </div>
@@ -78,7 +98,9 @@ export default function MyEarnings() {
               <p className="text-xs text-gray-500 uppercase font-semibold">
                 User ID
               </p>
-              <p className="font-medium text-gray-800">{user.id}</p>
+              <p className="font-medium text-gray-800">
+                {user?.id || "Not available"}
+              </p>
             </div>
           </div>
 
@@ -89,7 +111,7 @@ export default function MyEarnings() {
                 Role
               </p>
               <p className="font-medium text-gray-800">
-                {user.role || "Not specified"}
+                {user?.role || "Not specified"}
               </p>
             </div>
           </div>
@@ -100,7 +122,9 @@ export default function MyEarnings() {
               <p className="text-xs text-gray-500 uppercase font-semibold">
                 City
               </p>
-              <p className="font-medium text-gray-800">{city}</p>
+              <p className="font-medium text-gray-800">
+                {city || "Not specified"}
+              </p>
             </div>
           </div>
         </div>
@@ -122,7 +146,10 @@ export default function MyEarnings() {
                 Total
               </p>
               <p className="text-xl font-bold text-green-600">
-                ${total_earnings.toFixed(2)}
+                $
+                {typeof total_earnings === "number"
+                  ? total_earnings.toFixed(2)
+                  : "0.00"}
               </p>
             </div>
           </div>

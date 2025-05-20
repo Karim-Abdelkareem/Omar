@@ -11,6 +11,7 @@ import {
   FileText,
 } from "lucide-react";
 import axios from "axios";
+import api from "../../axios/api";
 
 export default function AvailableShipments() {
   const [availableShipments, setAvailableShipments] = useState([]);
@@ -70,15 +71,7 @@ export default function AvailableShipments() {
   };
 
   const handleAcceptShipment = async (shipmentId) => {
-    await axios.post(
-      `http://127.0.0.1:8000/agents/claim-shipment/${shipmentId}/`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
-      }
-    );
+    await api.post(`/agents/claim-shipment/${shipmentId}/`, {});
     alert(`Accepting shipment ${shipmentId}`);
     setAvailableShipments(
       availableShipments.filter((shipment) => {
