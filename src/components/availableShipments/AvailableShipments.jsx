@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import axios from "axios";
+import api from "../../axios/api";
 
 export default function AvailableShipments() {
   const [availableShipments, setAvailableShipments] = useState([]);
@@ -74,15 +75,7 @@ export default function AvailableShipments() {
   };
 
   const handleAcceptShipment = async (shipmentId) => {
-    await axios.post(
-      `http://127.0.0.1:8000/agents/claim-shipment/${shipmentId}/`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
-      }
-    );
+    await api.post(`/agents/claim-shipment/${shipmentId}/`, {});
     alert(`Accepting shipment ${shipmentId}`);
     setAvailableShipments(
       availableShipments.filter((shipment) => {
@@ -101,7 +94,34 @@ export default function AvailableShipments() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4E9989]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 bg-red-50 rounded-lg flex items-center gap-3 text-red-700">
+        <AlertCircle size={24} />
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (availableShipments.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center">
+        <Truck
+          className="mx-auto mb-4 text-gray-400"
+          size={48}
+          strokeWidth={1.5}
+        />
+        <h3 className="text-lg font-semibold text-gray-800">
+          No Available Shipments
+        </h3>
+        <p className="text-gray-500 mt-2">
+          Check back later for new shipment opportunities.
+        </p>
       </div>
     );
   }

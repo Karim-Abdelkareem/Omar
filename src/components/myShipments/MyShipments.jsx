@@ -18,6 +18,7 @@ import {
   User,
   Clipboard,
 } from "lucide-react";
+import api from "../../axios/api";
 
 export default function MyShipments() {
   const [myShipments, setMyShipments] = useState([]);
@@ -35,14 +36,7 @@ export default function MyShipments() {
         // For preview purposes, using mock data
         // In production, uncomment the axios call below
 
-        const response = await axios.get(
-          `http://127.0.0.1:8000/agents/my-shipments`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access")}`,
-            },
-          }
-        );
+        const response = await api.get(`/agents/my-shipments`);
         setMyShipments(response.data);
       } catch (err) {
         setError("Failed to fetch shipments");
@@ -117,15 +111,7 @@ export default function MyShipments() {
 
   const markAsDelivered = async (shipmentId) => {
     // Implementation would call the API to update shipment status
-    await axios.post(
-      `http://127.0.0.1:8000/agents/confirm-delivery/${shipmentId}/`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
-      }
-    );
+    await api.post(`/agents/confirm-delivery/${shipmentId}/`, {});
     // Update the shipment status in the state
     setMyShipments((prev) =>
       prev.map((shipment) =>
