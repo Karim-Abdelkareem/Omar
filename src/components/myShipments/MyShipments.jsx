@@ -36,14 +36,7 @@ export default function MyShipments() {
         // For preview purposes, using mock data
         // In production, uncomment the axios call below
 
-        const response = await axios.get(
-          `http://127.0.0.1:8000/agents/my-shipments`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access")}`,
-            },
-          }
-        );
+        const response = await api.get(`/agents/my-shipments`);
         setMyShipments(response.data);
       } catch (err) {
         setError("Failed to fetch shipments");
