@@ -4,41 +4,56 @@ const api = axios.create({
   baseURL: "http://localhost:8000",
 });
 
-api.interceptors.request.use(async (config) => {
+// Separate instance for refresh to avoid infinite loop
+const refreshApi = axios.create({
+  baseURL: "http://localhost:8000",
+});
+
+// Add access token to request headers
+api.interceptors.request.use((config) => {
   const access = localStorage.getItem("access");
-  config.headers.Authorization = access ? `Bearer ${access}` : "";
+  if (access) {
+    config.headers.Authorization = `Bearer ${access}`;
+  }
   return config;
 });
 
+// Handle token expiration and retry
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
     if (
+      error.response &&
       error.response.status === 401 &&
       !originalRequest._retry &&
       localStorage.getItem("refresh")
     ) {
       originalRequest._retry = true;
-      const refresh = localStorage.getItem("refresh");
-      try {
-        const response = await api.post(
-          "http://localhost:8000/api/users/refresh/",
-          { refresh: refresh }
-        );
-        console.log(response);
 
-        localStorage.setItem("access", response.data.access);
-        originalRequest.headers[
-          "Authorization"
-        ] = `Bearer ${response.data.access}`;
+      try {
+        const refreshToken = localStorage.getItem("refresh");
+        const response = await refreshApi.post("/api/users/refresh/", {
+          refresh: refreshToken,
+        });
+
+        const newAccess = response.data.access;
+        localStorage.setItem("access", newAccess);
+
+        // Update the authorization header and retry
+        originalRequest.headers.Authorization = `Bearer ${newAccess}`;
         return api(originalRequest);
-      } catch (err) {
+      } catch (refreshError) {
         localStorage.clear();
-        window.location.href = `/login`;
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
+
+    // If it's not a 401 or no refresh available, reject
     return Promise.reject(error);
   }
 );
+
 export default api;

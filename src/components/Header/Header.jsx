@@ -75,22 +75,7 @@ export default function Header() {
               </div>
             )}
           </div>
-          {!user ? (
-            <>
-              <Link
-                to="/login"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
-              >
-                Register
-              </Link>
-            </>
-          ) : (
+          {user?.role === "agent" ? (
             <>
               <Link
                 to="/shipments/available"
@@ -118,6 +103,66 @@ export default function Header() {
               >
                 Logout
               </button>
+            </>
+          ) : user?.role === "customer" ? (
+            <>
+              <Link
+                to="/"
+                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              >
+                Create Shipment
+              </Link>
+              <Link
+                to="/"
+                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              >
+                List Shipment
+              </Link>
+              <Link
+                to="/"
+                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/"
+                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              >
+                Plan
+              </Link>
+              <button
+                onClick={() => {
+                  logout();
+                }}
+                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              >
+                Logout
+              </button>
+            </>
+          ) : user.role === "admin" ? (
+            <>
+              {/* 
+          
+          
+          
+          ADMIN ROUTES
+          
+          */}
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="hover:underline hover:text-yellow-400 transition-colors duration-300"
+              >
+                Register
+              </Link>
             </>
           )}
         </nav>

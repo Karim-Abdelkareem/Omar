@@ -20,18 +20,22 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
+    // const data = new FormData();
 
-    for (let key in formData) {
-      if (formData[key]) {
-        data.append(key, formData[key]);
-      }
-    }
+    // for (let key in formData) {
+    //   if (formData[key]) {
+    //     data.append(key, formData[key]);
+    //   }
+    // }
+    console.log(formData);
 
     try {
-      await axios.post("http://localhost:8000/api/users/register/", data);
+      await axios.post("http://localhost:8000/api/users/register/", formData);
+
       alert("Registered successfully!");
     } catch (err) {
+      console.log(err);
+
       console.error(err.response?.data || err.message);
       alert("Registration failed.");
     }
